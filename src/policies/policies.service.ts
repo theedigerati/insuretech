@@ -11,6 +11,8 @@ import { Plan } from '../plans/plans.model';
 import { UsersService } from '../users/users.service';
 import { ActivatePendingPolicyDto } from './activate-pending-policy.dto';
 import { nanoid } from 'nanoid';
+import { Product } from '../products/products.model';
+import { User } from '../users/users.model';
 
 @Injectable()
 export class PoliciesService {
@@ -80,6 +82,13 @@ export class PoliciesService {
       await pending.destroy({ transaction });
 
       return policy;
+    });
+  }
+
+  async findAll(planId?: number) {
+    return this.policyModel.findAll({
+      where: planId ? { planId } : undefined,
+      include: [Product, User],
     });
   }
 }

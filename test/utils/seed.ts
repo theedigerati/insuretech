@@ -24,7 +24,7 @@ export async function seedBasicData() {
     categoryId: category.id,
   });
 
-  return { userA, userB, product };
+  return { userA, userB, product, category };
 }
 
 export async function seedProductsData(): Promise<{

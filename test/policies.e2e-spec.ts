@@ -12,6 +12,8 @@ import { PlansModule } from '../src/plans/plans.module';
 import { PoliciesModule } from '../src/policies/policies.module';
 import { Sequelize } from 'sequelize';
 import { getConnectionToken } from '@nestjs/sequelize';
+import { Plan } from '../src/plans/plans.model';
+import { Product } from '../src/products/products.model';
 
 jest.mock('nanoid', () => ({ nanoid: () => crypto.randomUUID() }));
 
@@ -146,5 +148,64 @@ describe('Policies API (e2e)', () => {
         beneficiaryId: userB.id,
       })
       .expect(404); // already soft deleted
+  });
+
+  it('should fetch activated policies and filter by plan', async () => {
+    const { userA, userB, product, category } = await seedBasicData();
+
+    // purchase plans
+    await request(app.getHttpServer()).post('/plans').send({
+      customerId: userA.id,
+      productId: product.id,
+      quantity: 3,
+    });
+    const newProduct = await Product.create({
+      name: 'Optimal Care Standard',
+      price: 20_000,
+      categoryId: category?.id,
+    });
+    await request(app.getHttpServer()).post('/plans').send({
+      customerId: userA.id,
+      productId: newProduct.id,
+      quantity: 2,
+    });
+
+    // activate pending policies
+    const pendings = await PendingPolicy.findAll();
+    await request(app.getHttpServer())
+      .post('/policies/activate')
+      .send({
+        pendingPolicyId: pendings[0].id,
+        beneficiaryId: userB.id,
+      })
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/policies/activate')
+      .send({
+        pendingPolicyId: pendings[1].id,
+        beneficiaryId: userA.id,
+      })
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/policies/activate')
+      .send({
+        pendingPolicyId: pendings[3].id,
+        beneficiaryId: userA.id,
+      })
+      .expect(201);
+
+    // fetch all
+    const res = await request(httpServer).get('/policies').expect(200);
+    expect(res.body).toHaveLength(3);
+    expect(res.body).toHaveProperty([0, 'policyNumber']);
+    expect(res.body).toHaveProperty([0, 'product', 'id'], product.id);
+    expect(res.body).toHaveProperty([0, 'beneficiary', 'id'], userB.id);
+
+    // filter by plan
+    const plan = await Plan.findByPk(pendings[3].planId);
+    const _res = await request(httpServer)
+      .get(`/policies?plan=${plan?.id}`)
+      .expect(200);
+    expect(_res.body).toHaveLength(1);
   });
 });
