@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ActivatePendingPolicyDto } from './activate-pending-policy.dto';
 import { PoliciesService } from './policies.service';
-import { Policy } from './policies.model';
+import { PolicyResponseDto } from './dtos/policy-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('policies')
 export class PoliciesController {
@@ -11,15 +12,24 @@ export class PoliciesController {
    * Fetch all active policies
    */
   @Get()
-  findAll(@Query('plan') plan: number): Promise<Policy[]> {
-    return this.policiesService.findAll(plan);
+  async findAll(@Query('plan') plan: number): Promise<PolicyResponseDto[]> {
+    const policies = await this.policiesService.findAll(plan);
+    const plainPolicies = policies.map((p) => p.get({ plain: true }));
+    return plainToInstance(PolicyResponseDto, plainPolicies, {
+      excludeExtraneousValues: true,
+    });
   }
 
   /**
-   * Activate a pending policy, hence creating a policy for a user(beneficiary)
+   * Activate a pending policy, hence, creating a policy for a user (beneficiary)
    */
   @Post('activate')
-  activate(@Body() dto: ActivatePendingPolicyDto) {
-    return this.policiesService.activatePendingPolicy(dto);
+  async activate(
+    @Body() dto: ActivatePendingPolicyDto,
+  ): Promise<PolicyResponseDto> {
+    const policy = await this.policiesService.activatePendingPolicy(dto);
+    return plainToInstance(PolicyResponseDto, policy.get({ plain: true }), {
+      excludeExtraneousValues: true,
+    });
   }
 }

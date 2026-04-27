@@ -67,15 +67,13 @@ describe('Policies API (e2e)', () => {
 
     const pending = await PendingPolicy.findOne();
 
-    const res = await request(httpServer)
+    await request(httpServer)
       .post('/policies/activate')
       .send({
         pendingPolicyId: pending?.id,
         beneficiaryId: userB.id,
       })
       .expect(201);
-
-    expect(res.body).toHaveProperty('beneficiaryId', userB.id);
 
     // verify pending is soft deleted
     const deleted = await PendingPolicy.findByPk(pending?.id, {

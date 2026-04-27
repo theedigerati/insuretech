@@ -75,7 +75,7 @@ export class PoliciesService {
           planId: pending.planId,
           policyNumber,
         },
-        { transaction },
+        { transaction, include: [User, Plan, Product] },
       );
 
       pending.status = 'used';
@@ -88,7 +88,7 @@ export class PoliciesService {
   async findAll(planId?: number) {
     return this.policyModel.findAll({
       where: planId ? { planId } : undefined,
-      include: [Product, User],
+      include: [Plan, Product, User],
     });
   }
 }

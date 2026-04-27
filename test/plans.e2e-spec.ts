@@ -116,7 +116,7 @@ describe('Plans API (e2e)', () => {
       .expect(200);
 
     expect(res.body).toHaveLength(3);
-    expect(res.body).toHaveProperty([0, 'status'], 'unused');
+    expect(res.body).toHaveProperty([0, 'plan', 'id'], plan?.id);
   });
 
   it('should fail if wallet balance is insufficient', async () => {

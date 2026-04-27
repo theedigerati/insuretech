@@ -5,7 +5,7 @@ import { Plan } from './plans.model';
 import { PendingPolicy } from '../policies/policies.model';
 import { ProductsService } from '../products/products.service';
 import { WalletService } from '../wallet/wallet.service';
-import { PurchasePlanDto } from './purchase-plan.dto';
+import { PurchasePlanDto } from './dtos/purchase-plan.dto';
 import { Product } from '../products/products.model';
 
 @Injectable()
@@ -42,7 +42,7 @@ export class PlansService {
           quantity,
           totalPrice,
         },
-        { transaction },
+        { transaction, include: [Product] },
       );
 
       // bulk create pending policies
@@ -58,6 +58,9 @@ export class PlansService {
   }
 
   async getPendingPolicies(id: number): Promise<PendingPolicy[]> {
-    return await this.pendingPolicyModel.findAll({ where: { planId: id } });
+    return await this.pendingPolicyModel.findAll({
+      where: { planId: id },
+      include: [Plan],
+    });
   }
 }
