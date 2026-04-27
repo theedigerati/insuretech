@@ -8,6 +8,7 @@ import { ProductsModule } from './products/products.module';
 import { WalletModule } from './wallet/wallet.module';
 import { PlansModule } from './plans/plans.module';
 import { PoliciesModule } from './policies/policies.module';
+import { SeederModule } from './seeders/seeder.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PoliciesModule } from './policies/policies.module';
     WalletModule,
     PlansModule,
     PoliciesModule,
+    SeederModule,
   ],
   controllers: [AppController],
   providers: [AppService],

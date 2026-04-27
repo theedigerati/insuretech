@@ -72,7 +72,7 @@ pnpm start
 
 ```
 
-### 5.seed the database
+### 5. Seed the database
 
 ```bash
 
@@ -80,7 +80,7 @@ pnpm start
 pnpm seed
 ```
 
-The API will be available at `http://localhost:3000` and Swagger docs at `http://localhost:3000/api`.
+The API will be available at `http://localhost:3000` and Swagger API docs at `http://localhost:3000/api`.
 
 ---
 
