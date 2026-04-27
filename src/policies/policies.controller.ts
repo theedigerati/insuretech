@@ -7,11 +7,17 @@ import { Policy } from './policies.model';
 export class PoliciesController {
   constructor(private policiesService: PoliciesService) {}
 
+  /**
+   * Fetch all active policies
+   */
   @Get()
   findAll(@Query('plan') plan: number): Promise<Policy[]> {
     return this.policiesService.findAll(plan);
   }
 
+  /**
+   * Activate a pending policy, hence creating a policy for a user(beneficiary)
+   */
   @Post('activate')
   activate(@Body() dto: ActivatePendingPolicyDto) {
     return this.policiesService.activatePendingPolicy(dto);

@@ -5,6 +5,9 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
+  /**
+   * Fetch all available insurance products
+   */
   @Get()
   findAll() {
     return this.productsService.findAll();
