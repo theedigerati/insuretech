@@ -6,6 +6,7 @@ import { PendingPolicy } from '../policies/policies.model';
 import { ProductsService } from '../products/products.service';
 import { WalletService } from '../wallet/wallet.service';
 import { PurchasePlanDto } from './purchase-plan.dto';
+import { Product } from '../products/products.model';
 
 @Injectable()
 export class PlansService {
@@ -20,7 +21,11 @@ export class PlansService {
     private walletService: WalletService,
   ) {}
 
-  async purchasePlan(purchasePlanDto: PurchasePlanDto) {
+  async findAll(): Promise<Plan[]> {
+    return this.planModel.findAll({ include: [Product] });
+  }
+
+  async purchasePlan(purchasePlanDto: PurchasePlanDto): Promise<Plan> {
     return this.sequelize.transaction(async (transaction) => {
       const { customerId, productId, quantity } = purchasePlanDto;
       const product = await this.productsService.findById(productId);
@@ -50,5 +55,9 @@ export class PlansService {
 
       return plan;
     });
+  }
+
+  async getPendingPolicies(id: number): Promise<PendingPolicy[]> {
+    return await this.pendingPolicyModel.findAll({ where: { planId: id } });
   }
 }

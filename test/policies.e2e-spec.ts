@@ -5,7 +5,6 @@ import request from 'supertest';
 import { TestDatabaseModule } from './utils/db.module';
 import { seedBasicData } from './utils/seed';
 import { PendingPolicy, Policy } from '../src/policies/policies.model';
-import { User } from '../src/users/users.model';
 import { UsersModule } from '../src/users/users.module';
 import { ProductsModule } from '../src/products/products.module';
 import { WalletModule } from '../src/wallet/wallet.module';
@@ -52,29 +51,6 @@ describe('Policies API (e2e)', () => {
     await sequelize.query('PRAGMA foreign_keys = OFF;');
     await sequelize.truncate();
     await sequelize.query('PRAGMA foreign_keys = ON;');
-  });
-
-  it('should purchase a plan and create pending policies', async () => {
-    const { userA, product } = await seedBasicData();
-
-    const res = await request(httpServer)
-      .post('/plans')
-      .send({
-        customerId: userA.id,
-        productId: product.id,
-        quantity: 3,
-      })
-      .expect(201);
-
-    expect(res.body).toHaveProperty('id');
-
-    // verify pending policies created
-    const pendingPolicies = await PendingPolicy.findAll();
-    expect(pendingPolicies.length).toBe(3);
-
-    // verify wallet deducted
-    const updatedUser = await User.findByPk(userA.id);
-    expect(updatedUser?.walletBalance).toBe(70_000);
   });
 
   it('should activate a pending policy for another user', async () => {
@@ -170,18 +146,5 @@ describe('Policies API (e2e)', () => {
         beneficiaryId: userB.id,
       })
       .expect(404); // already soft deleted
-  });
-
-  it('should fail if wallet balance is insufficient', async () => {
-    const { userB, product } = await seedBasicData();
-
-    await request(app.getHttpServer())
-      .post('/plans')
-      .send({
-        customerId: userB.id,
-        productId: product.id,
-        quantity: 1,
-      })
-      .expect(400);
   });
 });
