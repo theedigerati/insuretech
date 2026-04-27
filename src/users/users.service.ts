@@ -9,4 +9,8 @@ export class UsersService {
   async findById(id: number) {
     return this.userModel.findByPk(id);
   }
+
+  async findAll(): Promise<User[]> {
+    return this.userModel.findAll();
+  }
 }
