@@ -61,7 +61,7 @@ createdb insuretech
 Or via psql:
 
 ```sql
-CREATE DATABASE mycovergenius;
+CREATE DATABASE insuretech;
 ```
 
 ### 5. Start the application (sync db)
